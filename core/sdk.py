@@ -20,28 +20,52 @@
 # Date              : 26.11.2017
 # Last Modified Date: 26.11.2017
 # Last Modified By  : hargathor <3949704+hargathor@users.noreply.github.com>
-
+import json
 import logging
 import sys
+from array import *
+from pprint import pprint
 
-from pyxacml_sdk.core import net
+from pyxacml_sdk.core.net import Net
+from pyxacml_sdk.core.utils import Tools
+from pyxacml_sdk.model.categories import Category_ID
+from pyxacml_sdk.model.category import Category
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
 class Sdk(object):
 
+    categories = dict()
     """Docstring for sdk. """
 
     def __init__(self, endpoint, domain_id, port=8080, headers=None):
         """TODO: to be defined1. """
         logging.debug(
-                'Initializing SDK using: [endpoint: {}, port: {}, domain_id: {}, headers: {}]'
-                .format(endpoint, port, domain_id, headers))
-        self.net = net.Net(endpoint, port, domain_id, headers)
+            'Initializing SDK using: [endpoint: {}, port: {}, domain_id: {}, headers: {}]'
+            .format(endpoint, port, domain_id, headers))
+        self.net = Net(endpoint, port, domain_id, headers)
 
+    def add_attribute(self, category, attribute):
+        """TODO: Docstring for add_attribute.
 
-    def get_authz(self, subject, resource, action, environment):
+        :category: TODO
+        :: TODO
+        :returns: TODO
+
+        """
+        logging.debug("Adding attribute to category")
+        if(not self.__is_category__(category)):
+            logging.debug("Category not existing in dict. Creating it....")
+            self.categories['Category'] = {
+                'CategoryId': str(category), 'Attribute': attribute
+            }
+        else:
+            logging.debug("Adding attribute to already existing category")
+            self.update_category(category, attribute)
+        logging.debug(self.categories['Category'])
+
+    def get_authz(self):
         """TODO: Docstring for get_authz.
 
         :subject: TODO
@@ -51,6 +75,52 @@ class Sdk(object):
         :returns: TODO
 
         """
-        logging.error('Not implemented')
+
+        # request = self.__build_request()
+        # logging.debug(json.dumps(request, indent=4,
+        #                          default=Tools.default_serializer))
+
+    def update_category(self, category, attribute):
+        """TODO: Docstring for update_attribute.
+
+        :category: TODO
+        :attribute: TODO
+        :returns: TODO
+
+        """
         pass
 
+    def __is_category__(self, category):
+        """
+        Searching if category is inside the self.categories object
+
+        :category: Enum Category
+        :returns: return empty dict if the category is not found and the  
+                    category object if found
+
+        """
+        logging.debug("Searching if {} is already present".format(category))
+        for my_category in self.categories:
+            logging.debug("{}".format(my_category))
+
+        return {}
+
+    def __build_request(self):
+        data = {'Request': self.categories}
+
+        return data
+
+    def __build_category_from_str_attribute(self,
+                                            attribute,
+                                            category):
+        """TODO: Docstring for function.
+
+        :attribute: TODO
+        :category: TODO
+        :returns: TODO
+
+        """
+        attributes = []
+        attributes.append(attribute)
+
+        return Category(category, attributes)

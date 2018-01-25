@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # /home/hargathor/dev/perso/pyxacml-sdk/__init__.py
 # Copyright (c) 2017 hargathor <3949704+hargathor@users.noreply.github.com>

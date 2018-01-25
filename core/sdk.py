@@ -55,15 +55,20 @@ class Sdk(object):
 
         """
         logging.debug("Adding attribute to category")
-        if(not self.__is_category__(category)):
-            logging.debug("Category not existing in dict. Creating it....")
-            self.categories['Category'] = {
-                'CategoryId': str(category), 'Attribute': attribute
-            }
+        updated_attr = attribute
+        if('Category' not in self.categories):
+            self.categories['Category'] = []
+
         else:
-            logging.debug("Adding attribute to already existing category")
-            self.update_category(category, attribute)
-        logging.debug(self.categories['Category'])
+            cat = self.__is_category__(category)
+            print(cat)
+            if cat:
+                attributes = self.categories['Category'].pop(cat)
+                print(attributes)
+
+            self.categories['Category'].append({
+                'CategoryId': str(category), 'Attribute': updated_attr
+            })
 
     def get_authz(self):
         """TODO: Docstring for get_authz.
@@ -100,8 +105,13 @@ class Sdk(object):
 
         """
         logging.debug("Searching if {} is already present".format(category))
-        for my_category in self.categories:
-            logging.debug("{}".format(my_category))
+        for cat in self.categories['Category']:
+            """
+            TODO: Implement proper category comparaison in order to avoid string comparaison
+            """
+            if str(category) is str(cat['CategoryId']):
+                logging.debug("Found it!")
+                return cat
 
         return {}
 

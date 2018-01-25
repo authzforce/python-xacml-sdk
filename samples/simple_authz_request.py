@@ -47,4 +47,6 @@ if __name__ == "__main__":
         {"Accept": "Application/json"})
     sdk.add_attribute(Category_ID.ACCESS_SUBJECT, subject_attribute_romain)
     sdk.add_attribute(Category_ID.ACCESS_SUBJECT, subject_attribute_cyril)
+    sdk.add_attribute(Category_ID.INTERMEDIARY_SUBJECT,
+                      subject_attribute_cyril)
     sdk.get_authz()

@@ -1,0 +1,16 @@
+pdp:
+    host: "127.0.0.1"
+    port: 8080
+    endpoint: "authzforce-ce-server"
+    ssl_verify: False
+    proxy_activate: False
+    proxy:
+        - proxy_user: "user"
+        - proxy_password: "password"
+auth:
+    auth_type: none
+    basic_authuser:
+        - user: 'admin'
+        - password: 'password'
+    x509:
+        - cert_path: '/opt/pyxacml_sdk/hargathor.pem'

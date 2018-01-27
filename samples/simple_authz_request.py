@@ -31,22 +31,34 @@ from pyxacml_sdk.model.attribute_ids import Attribute_ID
 from pyxacml_sdk.model.categories import Category_ID
 from pyxacml_sdk.model.datatypes import Datatype
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 
 if __name__ == "__main__":
-    logging.info("Trying to request a simple XACML authorization request")
+    logging.info("Trying to request a simple XACML authorization decision")
+    sdk = sdk.Sdk(
+        # Path to our configuration file
+        "/tmp/pyxacml_sdk/config.yml",
+        # Domain ID
+        "cccccchdggcihtjvniifuj")
+
+    # Building our attributes
     subject_attribute_romain = Attribute(
         Attribute_ID.SUBJECT_ID, "Romain", Datatype.STRING)
     subject_attribute_cyril = Attribute(
         Attribute_ID.SUBJECT_ID, "Cyril", Datatype.STRING)
-    sdk = sdk.Sdk(
-        "http://authzforce-server",
-        "qsjjsfjiaohiozaqjp",
-        8080,
-        {"Accept": "Application/json"})
+    action_attribute = Attribute(
+        Attribute_ID.ACTION_ID, "GET", Datatype.STRING)
+    ressource_attribute = Attribute(
+        Attribute_ID.RESOURCE_ID, "http://rootme.org", Datatype.STRING)
+
+    # Adding attributes to our request
     sdk.add_attribute(Category_ID.ACCESS_SUBJECT, subject_attribute_romain)
     sdk.add_attribute(Category_ID.ACCESS_SUBJECT, subject_attribute_cyril)
     sdk.add_attribute(Category_ID.INTERMEDIARY_SUBJECT,
                       subject_attribute_cyril)
+    sdk.add_attribute(Category_ID.RESOURCE, ressource_attribute)
+    sdk.add_attribute(Category_ID.ACTION, action_attribute)
+
+    # Asking for Authorization
     sdk.get_authz()

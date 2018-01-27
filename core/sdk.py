@@ -23,28 +23,33 @@
 import json
 import logging
 import sys
-from array import *
-from pprint import pprint
 
+import yaml
 from pyxacml_sdk.core.net import Net
 from pyxacml_sdk.core.utils import Tools
-from pyxacml_sdk.model.categories import Category_ID
-from pyxacml_sdk.model.category import Category
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
 class Sdk(object):
 
-    categories = dict()
     """Docstring for sdk. """
 
-    def __init__(self, endpoint, domain_id, port=8080, headers=None):
+    categories = dict()
+
+    def __init__(self, configuration_file_path, domain_id, headers=None):
         """TODO: to be defined1. """
+        self.cfg = self.__init_conf__(configuration_file_path)
+        self.host = self.cfg.get('pdp').get('host')
+        self.port = self.cfg.get('pdp').get('port')
+        self.endpoint = self.cfg.get('pdp').get('endpoint')
+        self.domain_id = domain_id
+        self.headers = headers
         logging.debug(
-            'Initializing SDK using: [endpoint: {}, port: {}, domain_id: {}, headers: {}]'
-            .format(endpoint, port, domain_id, headers))
-        self.net = Net(endpoint, port, domain_id, headers)
+            'Initializing SDK using: [host {}, port: {}, endpoint: {}, domain_id: {}, headers: {}]'
+            .format(self.host, self.port, self.endpoint, self.domain_id, self.headers))
+        self.net = Net(self.host, self.endpoint,
+                       self.domain_id, self.port, self.headers)
 
     def add_attribute(self, category, attribute):
         """TODO: Docstring for add_attribute.
@@ -56,19 +61,36 @@ class Sdk(object):
         """
         logging.debug("Adding attribute to category")
         updated_attr = attribute
-        if('Category' not in self.categories):
+        if 'Category' not in self.categories:
             self.categories['Category'] = []
 
         else:
-            cat = self.__is_category__(category)
-            print(cat)
+            cat = self.__is_category_exists__(category)
+            """
+                If the category already exist we update the list of
+                attributes of this category. We create the list if
+                it doesn't already exist
+            """
             if cat:
-                attributes = self.categories['Category'].pop(cat)
-                print(attributes)
+                updated_attr = self.__update_category__(attribute, cat)
 
-            self.categories['Category'].append({
-                'CategoryId': str(category), 'Attribute': updated_attr
-            })
+        self.categories['Category'].append({
+            'CategoryId': str(category), 'Attribute': updated_attr
+        })
+
+    def __init_conf__(self, conf_file_path):
+        """TODO: Docstring for __read_conf__.
+
+        :conf_file_path: TODO
+        :returns: TODO
+
+        """
+        with open(conf_file_path, 'r') as ymlfile:
+            cfg = yaml.load(ymlfile)
+        logging.debug("Dumping configuration")
+        logging.debug(cfg)
+
+        return cfg
 
     def get_authz(self):
         """TODO: Docstring for get_authz.
@@ -81,23 +103,28 @@ class Sdk(object):
 
         """
 
-        # request = self.__build_request()
-        # logging.debug(json.dumps(request, indent=4,
-        #                          default=Tools.default_serializer))
+        request = self.__build_request()
+        logging.debug(json.dumps(request, default=Tools.default_serializer))
+        self.net.send_request(request)
 
-    def update_category(self, category, attribute):
-        """TODO: Docstring for update_attribute.
+    def __update_category__(self, attribute, category):
+        """TODO: Docstring for __update_category__.
 
-        :category: TODO
         :attribute: TODO
+        :category: TODO
         :returns: TODO
 
         """
-        pass
+        updated_attr = []
+        updated_attr.append(category['Attribute'])
+        updated_attr.append(attribute)
+        self.categories['Category'].remove(category)
 
-    def __is_category__(self, category):
+        return updated_attr
+
+    def __is_category_exists__(self, category):
         """
-        Searching if category is inside the self.categories object
+        Search if category is inside the self.categories object
 
         :category: Enum Category
         :returns: return empty dict if the category is not found and the  
@@ -111,6 +138,7 @@ class Sdk(object):
             """
             if str(category) is str(cat['CategoryId']):
                 logging.debug("Found it!")
+                print(cat)
                 return cat
 
         return {}
@@ -119,18 +147,3 @@ class Sdk(object):
         data = {'Request': self.categories}
 
         return data
-
-    def __build_category_from_str_attribute(self,
-                                            attribute,
-                                            category):
-        """TODO: Docstring for function.
-
-        :attribute: TODO
-        :category: TODO
-        :returns: TODO
-
-        """
-        attributes = []
-        attributes.append(attribute)
-
-        return Category(category, attributes)

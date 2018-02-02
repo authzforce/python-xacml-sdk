@@ -49,7 +49,7 @@ class Sdk(object):
             'Initializing SDK using: [host {}, port: {}, endpoint: {}, domain_id: {}, headers: {}]'
             .format(self.host, self.port, self.endpoint, self.domain_id, self.headers))
         self.net = Net(self.host, self.endpoint,
-                       self.domain_id, self.port, self.headers)
+                       self.domain_id, self.port, self.headers, **self.cfg)
 
     def add_attribute(self, category, attribute):
         """TODO: Docstring for add_attribute.
@@ -104,8 +104,10 @@ class Sdk(object):
         """
 
         request = self.__build_request()
-        logging.debug(json.dumps(request, default=Tools.default_serializer))
-        self.net.send_request(request)
+        logging.debug(json.dumps(
+            request, default=Tools.default_serializer, indent=4))
+
+        return self.net.send_request(request)
 
     def __update_category__(self, attribute, category):
         """TODO: Docstring for __update_category__.

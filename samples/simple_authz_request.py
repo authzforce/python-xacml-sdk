@@ -40,7 +40,7 @@ if __name__ == "__main__":
         # Path to our configuration file
         "/tmp/pyxacml_sdk/config.yml",
         # Domain ID
-        "cccccchdggcihtjvniifuj")
+        "PvQkPMo-EeeHNgJCCgEAAw")
 
     # Building our attributes
     subject_attribute_romain = Attribute(
@@ -61,4 +61,4 @@ if __name__ == "__main__":
     sdk.add_attribute(Category_ID.ACTION, action_attribute)
 
     # Asking for Authorization
-    sdk.get_authz()
+    decision, raw = sdk.get_authz()
